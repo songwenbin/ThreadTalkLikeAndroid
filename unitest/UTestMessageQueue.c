@@ -2,15 +2,6 @@
 #include "Message.h"
 #include "MessageQueue.h"
 
-void TestSimple(CuTest *tc) {
-	printf("sssssssssssssssssssss\n");
-	/*
-	CuAssertIntEqual(tc, 2, count);
-	CuAssertPtrEquals(tc, NULL, result);
-	CuAssertStrEquals(tc, expected, actual);
-	 */
-}
-
 void TestQueueGenerate(CuTest *tc) {
 	struct MessageQueue *queue = NewMessageQueue();
 	CuAssertPtrNotNull(tc, queue);
@@ -43,7 +34,7 @@ void TestMessageEnDeBound(CuTest *tc) {
 	CuAssertPtrEquals(tc, NULL, queue->msgQueueTail);
 
         DeleteMessageQueue(queue);
-	DeleteMessage(dem);
+	DelMessage(dem);
 }
 
 void TestMessageEnDe(CuTest *tc) {
@@ -75,8 +66,8 @@ void TestMessageEnDe(CuTest *tc) {
 	CuAssertPtrEquals(tc, NULL, queue->msgQueueTail);
 
         DeleteMessageQueue(queue);
-	DeleteMessage(dem1);
-	DeleteMessage(enm2);
+	DelMessage(dem1);
+	DelMessage(enm2);
 }
 
 CuSuite* MessageQueueSuite()

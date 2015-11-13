@@ -3,6 +3,7 @@ OBJS+=../MessageQueue.c
 OBJS+=../MessagePool.c
 OBJS+=../Handler.c
 OBJS+=../Looper.c
+OBJS+=../lfqueue.c
 
 TESTOBJS=AllTests.c
 TESTOBJS+=CuTest.c

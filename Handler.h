@@ -18,9 +18,11 @@ struct Handler {
 
 struct Handler *NewHandler();
 void DelHandler(struct Handler *handle);
-struct Message *ObtainMessage(struct Handler *handler);
-struct Message *ObtainMessageWithWhat(struct Handler *handler, int what);
 void SendMessage(struct Handler* handler, struct Message *m);
 void HandleMessageQueue(struct Handler *handler);
+
+struct Message *ObtainMessage(struct Handler *handler);
+struct Message *ObtainMessageWithWhat(struct Handler *handler, int what);
+struct Message *ObtainMessageWithArgs(struct Handler *handler, int arg1, int arg2);
 
 #endif

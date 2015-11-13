@@ -12,12 +12,10 @@ void RunAllTests(void)
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 
-	/*
-	CuSuiteAddSuite(suite, MessageQueueSuite());
+	//CuSuiteAddSuite(suite, MessageQueueSuite());
+	CuSuiteAddSuite(suite, MessagePoolSuite());
 	CuSuiteAddSuite(suite, HandlerSuite());
-	*/
 	CuSuiteAddSuite(suite, LooperSuite());
-	//CuSuiteAddSuite(suite, MessagePoolSuite());
 
 	CuSuiteRun(suite);
 	CuSuiteSummary(suite, output);

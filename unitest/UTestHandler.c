@@ -14,6 +14,8 @@ void TestLooperThreadStorage(CuTest *tc) {
 	struct Looper *loop2 = handler2->loop;
 	CuAssertPtrEquals(tc, loop1, loop2);
 
+	DelHandler(handler1);
+	DelHandler(handler2);
 }
 
 void TestHandler(CuTest *tc) {
@@ -58,7 +60,7 @@ void TestHandleMessage(CuTest *tc) {
 CuSuite* HandlerSuite()
 {
 	CuSuite* suite = CuSuiteNew();
-	//SUITE_ADD_TEST(suite, TestLooperThreadStorage);
+	SUITE_ADD_TEST(suite, TestLooperThreadStorage);
 	//SUITE_ADD_TEST(suite, TestHandler);
 	//SUITE_ADD_TEST(suite, TestHandleMessage);
 	return suite;

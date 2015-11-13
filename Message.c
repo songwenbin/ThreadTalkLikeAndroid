@@ -3,12 +3,12 @@
 struct Message *NewMessage() {
 	struct Message *m = (struct Message *)malloc(sizeof(struct Message));
 	if (m == NULL) {
-		fprintf(stderr, "allocated message error!\n");
+		LOG_ERROR("allocated message error!\n");
 	}
 
 	m->what = 0;
-	m->args1 = 0;
-	m->args2 = 0;
+	m->arg1 = 0;
+	m->arg2 = 0;
 	m->obj = NULL;
 	m->callback = NULL;
 	m->next = NULL;
@@ -16,7 +16,7 @@ struct Message *NewMessage() {
 	return m;
 }
 
-void DeleteMessage(struct Message *m) {
+void DelMessage(struct Message *m) {
 	if (m == NULL) {
 		return;
 	}

@@ -3,15 +3,6 @@
 #include "MessageQueue.h"
 #include "MessagePool.h"
 
-void TestSimple1(CuTest *tc) {
-	printf("sssssssssssssssssssss\n");
-	/*
-	CuAssertIntEqual(tc, 2, count);
-	CuAssertPtrEquals(tc, NULL, result);
-	CuAssertStrEquals(tc, expected, actual);
-	 */
-}
-
 void TestMessagePoolCreate(CuTest *tc) {
 	struct MessagePool *pool = CreateMessagePool();
 	int i = 0;
@@ -55,10 +46,10 @@ void TestMessagePoolPutMessage(CuTest *tc) {
 	struct MessagePool *pool = CreateMessagePool();
 	struct Message *m = NewMessage();
 	PutMessage(pool, m);
-	CuAssertIntEquals(tc, 1025, pool->count);
+	CuAssertIntEquals(tc, 1024*1024+1, pool->count);
 
 	int i = 0;
-	for (i = 0; i < 1024; i ++) {
+	for (i = 0; i < 1024*1024; i ++) {
 		struct Message *msg = GetMessage(pool);
 	}
 	CuAssertIntEquals(tc, 1, pool->count);
@@ -82,7 +73,6 @@ void TestMessagePoolPutMessage(CuTest *tc) {
 CuSuite* MessagePoolSuite()
 {
 	CuSuite* suite = CuSuiteNew();
-	SUITE_ADD_TEST(suite, TestSimple1);
 	SUITE_ADD_TEST(suite, TestMessagePoolCreate);
 	SUITE_ADD_TEST(suite, TestMessagePoolGetTwoMessage);
 	SUITE_ADD_TEST(suite, TestMessagePoolPutMessage);

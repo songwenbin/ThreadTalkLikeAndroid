@@ -11,35 +11,8 @@
 #define THREAD_NUM 50
 #define MESSAGE_NUM 0xFFFF
 
-static int result = 0;
-static int HandleMessageImpl(struct Message *m) {
-	switch(m->what) {
-		case 0x01:
-			result = 2;
-	}
-}
-
-void TestLooper(CuTest *tc) {
-	struct Handler *handler = NewHandler();
-
-	struct Message *m1 = ObtainMessage(handler);
-	m1->what = 0x01;
-	SendMessage(handler, m1);
-
-	struct Message *m2 = ObtainMessage(handler);
-	m2->what = 0x02;
-	SendMessage(handler, m2);
-
-	struct Message *m3 = ObtainMessage(handler);
-	m3->what = 0x03;
-	SendMessage(handler, m3);
-
-	int ret = DispatchMessage(handler->loop);
-	CuAssertIntEquals(tc, 0, ret);
-}
-
 void *RegisterHandlerSub(void *args) {
-	int64_t u = 2;
+	int64_t u = 1;
 	int fd = *((int *)args);
 	write(fd, &u, sizeof(int64_t));
 }
@@ -59,11 +32,20 @@ void TestRegisterHandler(CuTest *tc) {
 	DelHandler(handler);
 }
 
+static int result = 0;
+static int HandleMessageImpl(struct Message *m) {
+	switch(m->what) {
+		case 0x01:
+			result = 1;
+	}
+}
+
 void *SendMessageThread(void *args) {
 	struct Handler *handler = (struct Handler *)args;
 	struct Message *m = ObtainMessage(handler);
 	m->what = 0x01;
 	SendMessage(handler, m);
+	sleep(1);
 	LoopStop(handler->loop);
 }
 
@@ -76,7 +58,8 @@ void TestUserHandler(CuTest *tc) {
 	pthread_create(&t, NULL, SendMessageThread, handler);
 	
 	LoopStart(handler->loop);
-	CuAssertIntEquals(tc, 2, result);
+	CuAssertIntEquals(tc, 1, result);
+	printf("ok2\n");
 	DelHandler(handler);
 }
 
@@ -90,12 +73,14 @@ struct TestObj {
 static int impl[THREAD_NUM] = {0};
 
 static int MultiHandleMessageImpl(struct Message *m) {
-	int i = m->args1;
+	int i = m->arg1;
 	CuAssertIntEquals((CuTest *)m->obj, impl[i]++, m->what);
 	//printf("Thread [%d] : %d\n", i, m->what);
+	/*
 	if (m->what == (THREAD_NUM - 1)) {
 		printf("Thread [%d] is finished!\n", i); 
 	}
+	*/
 }
 
 void *MultiHandlerSub(void *args) {
@@ -105,11 +90,11 @@ void *MultiHandlerSub(void *args) {
 	for (i = 0; i < MESSAGE_NUM; i ++) {
 		struct Message *m = ObtainMessage(handler);
 		m->what = i;
-		m->args1 = obj->i;
+		m->arg1 = obj->i;
 		m->obj = (void *)obj->context;
 		SendMessage(handler, m);
 	}
-	sleep(1);
+	//sleep(1);
 }
 
 pthread_t t[THREAD_NUM];
@@ -119,6 +104,8 @@ void *CollectThread(void *args) {
 	for (i = 0; i < THREAD_NUM; i ++) {
 		pthread_join(t[i], NULL);
 	}
+	EndTime();
+	PassTime();
 
 	LoopStop(handler->loop);
 }
@@ -136,6 +123,7 @@ void TestMultiHandler(CuTest *tc) {
 		obj[i].i = i;
 	}
 
+	StartTime();
 	for (i = 0; i < THREAD_NUM; i ++) {
 		pthread_create(&t[i], NULL, MultiHandlerSub, &obj[i]);
 	}
@@ -159,7 +147,7 @@ void *OldThreadMessageSub(void *args) {
 		int i;
 	printf("old\n");
 	StartTime();
-	for (i = 0; i < 0xFFFFFF; i ++) {
+	for (i = 0; i < 0xFFFFF; i ++) {
 		struct msgbuf *msg = (struct msgbuf *)malloc(sizeof(long) +sizeof(int));
 		msg->mtype = 0x100;
 		msg->mtext = i;
@@ -180,7 +168,7 @@ void TestOldThreadMessage(CuTest *tc) {
 		msgrcv(id, &buf, sizeof(int), 0x100, 0);
 		//CuAssertIntEquals(tc, ret1++, buf.mtext);
 		//printf("%d\n", buf.mtext);
-		if (buf.mtext == 0xFFFFFE) {
+		if (buf.mtext == 0xFFFFE) {
 			break;
 		}
 	}
@@ -200,7 +188,7 @@ void *SingleHandlerSub(void *args) {
 	struct Handler *handler = obj->handler;
 	int i = 0;
 	StartTime();
-	for (i = 0; i < 0xFFFFFF; i ++) {
+	for (i = 0; i < 0xFFFFF; i ++) {
 		struct Message *m = ObtainMessage(handler);
 		m->what = i;
 		m->obj = (void *)obj->context;
@@ -225,16 +213,13 @@ void TestSingleHandler(CuTest *tc) {
 	PassTime();
 }
 
-
 CuSuite* LooperSuite()
 {
 	CuSuite* suite = CuSuiteNew();
-	//SUITE_ADD_TEST(suite, TestLooper);
-	//SUITE_ADD_TEST(suite, TestRegisterHandler);
+	SUITE_ADD_TEST(suite, TestRegisterHandler);
 	//SUITE_ADD_TEST(suite, TestUserHandler);
-	//SUITE_ADD_TEST(suite, TestUserHandler);
-	//SUITE_ADD_TEST(suite, TestOldThreadMessage);
 	SUITE_ADD_TEST(suite, TestMultiHandler);
 	SUITE_ADD_TEST(suite, TestSingleHandler);
+	SUITE_ADD_TEST(suite, TestOldThreadMessage);
 	return suite;
 }
